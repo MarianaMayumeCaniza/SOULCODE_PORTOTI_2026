@@ -37,13 +37,21 @@
   },
   {
     "id": 1,
-    "nome": "Nescau",
-    "contato": "contato@nescau.com.br",
+    "nome": "Cacau Show",
+    "contato": "fornecimento@cacaushow.com.br",
     "telefone": "(11) 3333-4444",
     "produtos_fornecidos": [
       {
         "nome": "Chocolate Quente",
         "custo": 3
+      },
+      {
+        "nome": "Chocolate Belga Quente",
+        "custo": 5.5
+      },
+      {
+        "nome": "Achocolatado Gelado",
+        "custo": 2.5
       }
     ]
   },

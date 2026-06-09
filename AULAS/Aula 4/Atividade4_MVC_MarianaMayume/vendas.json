@@ -10,5 +10,17 @@
         "item": "Cafe",
         "qtd": 1,
         "valor": 4.5
+    },
+    {
+        "horario": "09/06/2026 00:49:09",
+        "item": "Cafe",
+        "qtd": 1,
+        "valor": 4.5
+    },
+    {
+        "horario": "09/06/2026 01:02:06",
+        "item": "Cafe",
+        "qtd": 1,
+        "valor": 4.5
     }
 ]

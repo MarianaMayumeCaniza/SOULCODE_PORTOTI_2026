@@ -1,0 +1,130 @@
+[
+    {
+        "nome": "Cafe",
+        "marca": "Nescafe",
+        "temperatura": "Quente",
+        "tipo": "Cafeinado",
+        "preco_venda": 3.65,
+        "quantidade": 88
+    },
+    {
+        "nome": "Cappuccino",
+        "marca": "Nescafe",
+        "temperatura": "Quente",
+        "tipo": "Cafeinado",
+        "preco_venda": 8.55,
+        "quantidade": 50
+    },
+    {
+        "nome": "Descafeinado",
+        "marca": "Nescafe",
+        "temperatura": "Quente",
+        "tipo": "Sem Cafeina",
+        "preco_venda": 4.95,
+        "quantidade": 45
+    },
+    {
+        "nome": "Cafe com Leite",
+        "marca": "Nescafe",
+        "temperatura": "Quente",
+        "tipo": "Cafeinado",
+        "preco_venda": 5.4,
+        "quantidade": 65
+    },
+    {
+        "nome": "Frapuccino",
+        "marca": "Nescafe",
+        "temperatura": "Gelado",
+        "tipo": "Cafeinado",
+        "preco_venda": 10.8,
+        "quantidade": 55
+    },
+    {
+        "nome": "Mocca",
+        "marca": "Nescafe",
+        "temperatura": "Quente",
+        "tipo": "Cafeinado",
+        "preco_venda": 9.9,
+        "quantidade": 25
+    },
+    {
+        "nome": "Latte",
+        "marca": "Nescafe",
+        "temperatura": "Quente",
+        "tipo": "Cafeinado",
+        "preco_venda": 9.0,
+        "quantidade": 35
+    },
+    {
+        "nome": "Nescau Quente",
+        "marca": "Nescau",
+        "temperatura": "Quente",
+        "tipo": "Achocolatado",
+        "preco_venda": 6.3,
+        "quantidade": 40
+    },
+    {
+        "nome": "Chocolate Quente",
+        "marca": "Cacau Show",
+        "temperatura": "Quente",
+        "tipo": "Achocolatado",
+        "preco_venda": 7.2,
+        "quantidade": 60
+    },
+    {
+        "nome": "Chocolate Belga Quente",
+        "marca": "Cacau Show",
+        "temperatura": "Quente",
+        "tipo": "Achocolatado",
+        "preco_venda": 12.6,
+        "quantidade": 30
+    },
+    {
+        "nome": "Achocolatado Gelado",
+        "marca": "Cacau Show",
+        "temperatura": "Gelado",
+        "tipo": "Achocolatado",
+        "preco_venda": 5.85,
+        "quantidade": 45
+    },
+    {
+        "nome": "Leite",
+        "marca": "Leite Mocinha",
+        "temperatura": "Frio",
+        "tipo": "Lacteo",
+        "preco_venda": 3.15,
+        "quantidade": 70
+    },
+    {
+        "nome": "Cha Matte",
+        "marca": "Leite Mocinha",
+        "temperatura": "Frio",
+        "tipo": "Sem Cafeina",
+        "preco_venda": 4.5,
+        "quantidade": 40
+    },
+    {
+        "nome": "Leite com Mel",
+        "marca": "Leite Mocinha",
+        "temperatura": "Quente",
+        "tipo": "Lacteo",
+        "preco_venda": 5.4,
+        "quantidade": 35
+    },
+    {
+        "nome": "Vitamina",
+        "marca": "Leite Mocinha",
+        "temperatura": "Frio",
+        "tipo": "Lacteo",
+        "preco_venda": 7.65,
+        "quantidade": 25
+    },
+    {
+        "nome": "teste",
+        "preco_venda": 4.5,
+        "quantidade": 100,
+        "marca": "teste",
+        "temperatura": "teste",
+        "tipo": "teste"
+    }
+]

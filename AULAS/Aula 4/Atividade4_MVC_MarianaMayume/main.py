@@ -6,124 +6,37 @@
 
 
 import datetime
-import json
-import os 
+import os
+from Models_banco_dados import carregar_bebidas, carregar_vendas, carregar_fornecedores, salvar_estoque, salvar_vendas, salvar_fornecedores
+from Views_interface import exibir_cardapio, exibir_menu
+from Controller import calcular_lucro, buscar_custo
 
-pasta = os.path.dirname(os.path.abspath(__file__))
+pasta = os.path.dirname(os.path.abspath(__file__)) 
 
-# ============================================================
-#  CARREGAR ESTOQUE
-# ============================================================
-try:
-    with open(os.path.join(pasta, 'estoque.json'), 'r', encoding='utf-8') as arquivo_estoque:
-        estoque = json.load(arquivo_estoque)
-except FileNotFoundError:
-    print("Arquivo estoque.json não encontrado. Usando lista reserva.")
-    estoque = [
-        {"nome": "Cafe",             "preco_venda": 4.50,  "quantidade": 80},
-        {"nome": "Chocolate Quente", "preco_venda": 8.00,  "quantidade": 60},
-        {"nome": "Cappuccino",       "preco_venda": 9.50,  "quantidade": 50},
-    ]
+estoque = [
+            {"nome": "Cafe",                   "marca": "Nescafe",       "temperatura": "Quente", "tipo": "Cafeinado",     "preco_venda": 4.50,  "quantidade": 80},
+            {"nome": "Cappuccino",             "marca": "Nescafe",       "temperatura": "Quente", "tipo": "Cafeinado",     "preco_venda": 9.50,  "quantidade": 50},
+        ]
 
-# ============================================================
-#  CARREGAR VENDAS
-# ============================================================
-try:
-    with open(os.path.join(pasta, 'vendas.json'), 'r', encoding='utf-8') as arquivo_vendas:
-        historico_vendas = json.load(arquivo_vendas)
-except FileNotFoundError:
-    print("Arquivo vendas.json não encontrado. Iniciando histórico vazio.")
-    historico_vendas = []
-
-# ============================================================
-#  CARREGAR FORNECEDORES
-# ============================================================
-try:
-    with open(os.path.join(pasta, 'fornecedores.json'), 'r', encoding='utf-8') as arquivo_fornecedores:
-        fornecedores = json.load(arquivo_fornecedores)
-except FileNotFoundError:
-    print("Arquivo fornecedores.json não encontrado.")
-    fornecedores = []
-
+estoque = carregar_bebidas("estoque.json", estoque, pasta_atual=pasta)
+historico_vendas = carregar_vendas("vendas.json", [], pasta_atual=pasta)
+fornecedores = carregar_fornecedores("fornecedores.json", [], pasta_atual=pasta) # Aqui eu vou precisar pensar.... a lista de fornecedores nao pdoe ta vazia....
 
 #INICIALIZAÇÃO DO CAIXA COM O TOTAL DAS VENDAS REGISTRADAS NO HISTÓRICO
 caixa = sum(venda['valor'] for venda in historico_vendas)
 
-# ============================================================
-#  FUNÇOES DO MENU - GERENCIAMENTO DE CAFETERIA
-# ============================================================
-
-#  FUNÇÃO: CALCULAR LUCRO
-def calcular_lucro(preco_venda, custo, quantidade_vendida):
-    lucro_bruto   = preco_venda * quantidade_vendida
-    custo_vendido = custo * quantidade_vendida
-    lucro_liquido = lucro_bruto - custo_vendido
-    lucro_por_uni = preco_venda - custo
-    return lucro_liquido, lucro_por_uni
-
-#  FUNÇÃO: SALVAR ARQUIVOS
-def salvar_estoque():
-    with open(os.path.join(pasta, 'estoque.json'), 'w', encoding='utf-8') as f:
-        json.dump(estoque, f, indent=4, ensure_ascii=False)
-
-def salvar_vendas():
-    with open(os.path.join(pasta, 'vendas.json'), 'w', encoding='utf-8') as f:
-        json.dump(historico_vendas, f, indent=4, ensure_ascii=False)
-
-def salvar_fornecedores():
-    with open(os.path.join(pasta, 'fornecedores.json'), 'w', encoding='utf-8') as f:
-        json.dump(fornecedores, f, indent=4, ensure_ascii=False)
-
-
-#  FUNÇÃO: BUSCAR CUSTO DO PRODUTO NO FORNECEDOR
-#Já que eu fiz o custo no arquivo de fornecedores, preciso de uma função para buscar o custo do produto para a função de calcular lucro funcionar.
-#Minha arquitura de banco de dados ficou assim, intencionalmente
-
-def buscar_custo(nome_produto):
-    for fornecedor in fornecedores:
-        for item in fornecedor['produtos_fornecidos']:
-            if item['nome'] == nome_produto:
-                return item['custo']
-    return None  # Se não encontrar fornecedor
-
-#  FUNÇÃO: EXIBIR O CARDAPIO
-def exibir_cardapio():
-    print("\nCARDÁPIO DISPONÍVEL:")
-    for id, produto in enumerate(estoque):
-        print(f"  [{id}] {produto['nome']:<20} | R$ {produto['preco_venda']:.2f} | Estoque: {produto['quantidade']}")
 
 
 
 while True:
-    print(f"""
-===========================================================
-CAFETERIA SOUL 
-Caixa Acumulado: R$ {caixa:.2f}
-============================================================""")
-    
-    exibir_cardapio()
-
-    print("""
-===========================================================
-'1' = Registrar Venda
-'2' = Cadastrar Produto
-'3' = Ver Fornecedores
-'4' = Alterar Preço
-'5' = Repor Estoque
-'6' = Pesquisar por Nome/Marca
-'7' = Promoções
-'8' = Nota Fiscal (Vendas da Sessão)
-'9' = Painel de Estatísticas e Balanço
-'0' = Sair
-===========================================================
-""")
+    exibir_menu(caixa, estoque)
 
     comando = int(input("Digite o número da bebida que deseja comprar ou 0 para sair do sistema: "))
 
     # ----------------------------------------------------------
     #  0 - SAIR
     # ----------------------------------------------------------
-    if comando == "0":
+    if comando == 0:
         print(f"\nEncerrando o sistema. Total em caixa: R$ {caixa:.2f}")
         break
     
@@ -133,38 +46,46 @@ Caixa Acumulado: R$ {caixa:.2f}
     #  1 - REGISTRAR VENDA
     # ----------------------------------------------------------
     elif comando == 1:
+        Valido = True
         print("\n========== REGISTRAR VENDA ==========")
-        try:
-            id_venda = int(input("Digite o [ID] da bebida: "))
-            if id_venda < 0 or id_venda >= len(estoque):
-                print("ERRO: ID inválido. Por favor, digite um ID existente no cardápio.")
-                exibir_cardapio()
-            else:
-                produto = estoque[id_venda]
-                qtd = int(input(f"Quantas unidades de '{produto['nome']}'? "))
-                if qtd <= 0:
-                    print("ERRO: quantidade inválida. Digite uma quantidade maior que zero.")
-                elif qtd > produto['quantidade']:
-                    print(f"ERRO: estoque insuficiente. Restam apenas {produto['quantidade']} unidades.")
+        while Valido:
+            try:
+                id_venda = int(input("Digite o [ID] da bebida: "))
+                if id_venda < 0 or id_venda >= len(estoque):
+                    print("ERRO: ID inválido. Por favor, digite um ID existente no cardápio.")
+                    exibir_cardapio(estoque)
+                    continue
                 else:
-                    produto['quantidade'] -= qtd
-                    valor_total = qtd * produto['preco_venda']
-                    caixa += valor_total
+                    #ai mds aqui ta dando o mesmo problema.... vou fazer while atras de while????0
+                    produto = estoque[id_venda]
 
-                    historico_vendas.append({
-                        "horario": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
-                        "item": produto['nome'],
-                        "qtd": qtd,
-                        "valor": valor_total
-                    })
+                    #Aqui teria que ter outro while??
+                    qtd = int(input(f"Quantas unidades de '{produto['nome']}'? "))
+                    if qtd <= 0:
+                        print("ERRO: quantidade inválida. Digite uma quantidade maior que zero.")
+                    elif qtd > produto['quantidade']:
+                        print(f"ERRO: estoque insuficiente. Restam apenas {produto['quantidade']} unidades.")
+                    else:
+                        produto['quantidade'] -= qtd # la em cima já puxou o produto... tá certo! 
+                        valor_total = qtd * produto['preco_venda']
+                        caixa += valor_total
 
-                    salvar_estoque() #atualiza a quandiade do estoque
-                    salvar_vendas() #autaliza o historico de vendas em vendas
-                    print(f"Venda registrada: {qtd} x '{produto['nome']}' por R$ {valor_total:.2f}. Obrigado!")
-        except ValueError:
-            print("ERRO: entrada inválida.")
-                # %d/%m/%y = dia/mes/ano
-                # %H/%M/%S = hota/minuto/segundo
+                        historico_vendas.append({
+                            "horario": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                            "item": produto['nome'],
+                            "qtd": qtd,
+                            "valor": valor_total
+                        })
+
+                        salvar_estoque(estoque) #atualiza a quandiade do estoque... 
+                        salvar_vendas(historico_vendas) #autaliza o historico de vendas em vendas
+                        print(f"Venda registrada: {qtd} x '{produto['nome']}' por R$ {valor_total:.2f}. Obrigado!")
+
+                        Valido = False
+            except ValueError:
+                print("ERRO: entrada inválida.")
+                    # %d/%m/%y = dia/mes/ano
+                    # %H/%M/%S = hota/minuto/segundo
 
     # ----------------------------------------------------------
     #  2 - CADASTRAR PRODUTO
@@ -175,14 +96,20 @@ Caixa Acumulado: R$ {caixa:.2f}
             novo_nome       = input("Nome do produto: ").strip()
             novo_preco      = float(input(f"Preço de venda de '{novo_nome}': R$ "))
             nova_quantidade = int(input(f"Quantidade inicial em estoque: "))
+            nova_marca       = input("Marca do produto: ").strip()
+            nova_temperatura = input("Temperatura (Quente/Frio): ").strip()
+            nova_tipo        = input("Tipo (Cafeinado/Descafeinado): ").strip()
 
             novo_produto = {
                 "nome": novo_nome,
                 "preco_venda": novo_preco,
-                "quantidade": nova_quantidade
+                "quantidade": nova_quantidade,
+                "marca": nova_marca,
+                "temperatura": nova_temperatura,
+                "tipo": nova_tipo
             }
             estoque.append(novo_produto)
-            salvar_estoque()
+            salvar_estoque(estoque)
             print(f"Produto '{novo_nome}' cadastrado com sucesso!")
         except ValueError:
             print("ERRO: entrada inválida.")
@@ -206,20 +133,21 @@ Caixa Acumulado: R$ {caixa:.2f}
     elif comando == 4:
         print("\n========== ALTERAR PREÇO ==========")
         # na vdd aqui nao precisava de try ja que ta convertendo a entrada para int, mas coloquei para evitar que o sistema quebre caso o usuario digite algo errado
+        # Uma validação extra!!! voce pode ver se o preço vai ser alterado para um novo... nao faz sentido alterar para o mesmo preço!
         try:
             id_produto = int(input("Digite o [ID] do produto: "))
             if id_produto < 0 or id_produto >= len(estoque):
                 print("ERRO: ID inválido.")
             else:
                 produto = estoque[id_produto]
-                custo   = buscar_custo(produto['nome'])
+                custo   = buscar_custo(produto['nome'],fornecedores)
                 novo_preco = float(input(f"Preço atual de '{produto['nome']}': R$ {produto['preco_venda']:.2f}. Novo preço: R$ "))
 
                 if custo and novo_preco < custo:
                     print(f"ATENÇÃO: novo preço (R$ {novo_preco:.2f}) está abaixo do custo do fornecedor (R$ {custo:.2f})!")
                 else:
                     produto['preco_venda'] = novo_preco
-                    salvar_estoque()
+                    salvar_estoque(estoque)
                     print(f"Preço atualizado para R$ {novo_preco:.2f}.")
         except ValueError:
             print("ERRO: entrada inválida.")
@@ -247,15 +175,16 @@ Caixa Acumulado: R$ {caixa:.2f}
                     print(f"\nFornecedor: {fornecedor_encontrado['nome']}")
                     print(f"Contato:    {fornecedor_encontrado['contato']}")
                     print(f"Telefone:   {fornecedor_encontrado['telefone']}")
+                    #aqui coloca o custo tambéM! 
                 else:
-                    print("Nenhum fornecedor cadastrado para este produto.")
+                    print("Nenhum fornecedor cadastrado para este produto.")# arrumar essa parte heinnnn
 
                 qtd = int(input(f"\nQuantas unidades deseja adicionar ao estoque de '{produto['nome']}'? "))
                 if qtd <= 0:
                     print("ERRO: quantidade inválida.")
                 else:
                     produto['quantidade'] += qtd
-                    salvar_estoque()
+                    salvar_estoque(estoque)
                     print(f"Estoque reposto! '{produto['nome']}' agora tem {produto['quantidade']} unidades.")
         except ValueError:
             print("ERRO: entrada inválida.")
@@ -265,12 +194,17 @@ Caixa Acumulado: R$ {caixa:.2f}
     # ----------------------------------------------------------
     elif comando == 6:
         print("\n========== PESQUISAR PRODUTO ==========")
+        print("  1 - Por Nome")
+        print("  2 - Por Marca")
+        print("  3 - Por Temperatura  (Quente / Frio / Gelado)")
+        print("  4 - Por Tipo         (Cafeinado / Achocolatado / Lacteo / Sem Cafeina)")
+        #Depois colocar aqui na view
         termo = input("Digite o nome ou parte do nome para pesquisar: ").strip().lower()
         encontrou = False
 
         for idx, produto in enumerate(estoque):
-            if termo in produto['nome'].lower():
-                custo = buscar_custo(produto['nome'])
+            if (termo in produto['nome'].lower() or termo in produto['marca'].lower() or termo in produto['temperatura'].lower() or termo in produto['tipo'].lower()):
+                custo = buscar_custo(produto['nome'], fornecedores)
                 custo_str = f"R$ {custo:.2f}" if custo else "sem fornecedor"
                 print(f"  [{idx}] {produto['nome']:<20} | R$ {produto['preco_venda']:.2f} | Estoque: {produto['quantidade']} | Custo: {custo_str}")
                 encontrou = True
@@ -292,20 +226,20 @@ Caixa Acumulado: R$ {caixa:.2f}
             fator         = (100 - desconto) / 100
 
             if tipo_promocao == 1:
-                exibir_cardapio()
+                exibir_cardapio(estoque)
                 id_produto = int(input("Digite o [ID] do produto: "))
                 if id_produto < 0 or id_produto >= len(estoque):
                     print("ERRO: ID inválido.")
                 else:
                     produto = estoque[id_produto]
                     produto['preco_venda'] = round(produto['preco_venda'] * fator, 2)
-                    salvar_estoque()
+                    salvar_estoque(estoque)
                     print(f"Desconto aplicado! Novo preço de '{produto['nome']}': R$ {produto['preco_venda']:.2f}")
 
             elif tipo_promocao == 2:
                 for produto in estoque:
                     produto['preco_venda'] = round(produto['preco_venda'] * fator, 2)
-                salvar_estoque()
+                salvar_estoque(estoque)
                 print(f"Desconto de {desconto}% aplicado em todo o cardápio!")
             else:
                 print("ERRO: opção inválida.")
@@ -340,7 +274,7 @@ Caixa Acumulado: R$ {caixa:.2f}
 
         for venda in historico_vendas:
             nome  = venda['item']
-            custo = buscar_custo(nome)
+            custo = buscar_custo(nome, fornecedores)
 
             if nome not in vendas_por_produto:
                 vendas_por_produto[nome] = {"qtd": 0, "receita": 0.0, "lucro": 0.0}
@@ -368,6 +302,51 @@ Caixa Acumulado: R$ {caixa:.2f}
         if produto_mais_vendido:
             print(f"  Produto mais vendido:  {produto_mais_vendido} ({maior_qtd} unidades)")
 
+    
+    
+    # ----------------------------------------------------------
+    #  10 - PAINEL DE BUSSINES INTELIGENCE
+    # ----------------------------------------------------------
+    elif comando == 10:
+        print("\n========== PAINEL DE BUSSINES INTELIGENCE ==========")
+
+        if len(historico_vendas) == 0:
+            print("Nenhuma venda registrada ainda.")
+            continue
+
+        faturamento_total = sum(venda['valor'] for venda in historico_vendas)
+        print("Faturamento total: R$ {:.2f}".format(faturamento_total))
+
+        ticket_medio = faturamento_total / len(historico_vendas)
+        print("Ticket médio: R$ {:.2f}".format(ticket_medio))
+
+        #livro_mais_vendido = max(set(venda['item'] for venda in historico_vendas), key=lambda item: sum(venda['quantidade'] for venda in historico_vendas if venda['item'] == item))
+        #print("Livro mais vendido: {}".format(livro_mais_vendido))
+        #O prfesor fez uma funçã para isso
+
+        vendas_por_produto = {}
+        for venda in historico_vendas:
+            if venda['item'] in vendas_por_produto:
+                vendas_por_produto[venda['item']] += venda['qtd']
+            else:
+                vendas_por_produto[venda['item']] = venda['qtd']
+
+                # Se não existe o item no historico eu crio a chave e já atribuo a quantidade vendida. Nao entendi muito bem a logica 
+                # a menos que o comando 9 for chamado varias vezes então ok.... vai armazenar
+                #o professor fez ao contrario... mas ok
+            #if venda['item'] not in historico_vendas_por_livro:
+                #historico_vendas_por_livro[venda['item']] = 0
+            #historico_vendas_por_livro[venda['item']] += venda['quantidade']
+        
+        produto_campeao = ""
+        maior_qtd_vendida = 0
+        for produto_nome, total_qtd in vendas_por_produto.items():
+            if total_qtd > maior_qtd_vendida:
+                maior_qtd_vendida = total_qtd
+                produto_campeao = produto_nome
+        print("Livro mais vendido: {} ({} unidades)".format(produto_campeao, maior_qtd_vendida))
+
+
     else:
         print("Comando inválido. Digite um número do menu.")
-        exibir_cardapio
+        exibir_cardapio(estoque)
