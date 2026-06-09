@@ -1,0 +1,22 @@
+[
+    {
+        "nome": "Cafe",
+        "preco_venda": 4.5,
+        "quantidade": 77
+    },
+    {
+        "nome": "Chocolate Quente",
+        "preco_venda": 8.0,
+        "quantidade": 60
+    },
+    {
+        "nome": "Cappuccino",
+        "preco_venda": 9.5,
+        "quantidade": 50
+    },
+    {
+        "nome": "Cappuccino",
+        "preco_venda": 9.5,
+        "quantidade": 100
+    }
+]
