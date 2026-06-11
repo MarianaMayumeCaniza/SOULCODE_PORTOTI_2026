@@ -1,0 +1,44 @@
+[
+    {
+        "horario": "08/06/2026 09:02:49",
+        "item": "Cafe",
+        "qtd": 2,
+        "valor": 9.0
+    },
+    {
+        "horario": "08/06/2026 09:05:09",
+        "item": "Cafe",
+        "qtd": 1,
+        "valor": 4.5
+    },
+    {
+        "horario": "09/06/2026 00:49:09",
+        "item": "Cafe",
+        "qtd": 1,
+        "valor": 4.5
+    },
+    {
+        "horario": "09/06/2026 01:02:06",
+        "item": "Cafe",
+        "qtd": 1,
+        "valor": 4.5
+    },
+    {
+        "horários": "10/06/26 08/21/05",
+        "item": "Cappuccino",
+        "qtd": 1,
+        "valor": 8.55
+    },
+    {
+        "horários": "10/06/26 08/21/45",
+        "item": "Cappuccino",
+        "qtd": 1,
+        "valor": 8.55
+    },
+    {
+        "horários": "10/06/26 08/26/49",
+        "item": "Cappuccino",
+        "qtd": 1,
+        "valor": 8.55
+    }
+]

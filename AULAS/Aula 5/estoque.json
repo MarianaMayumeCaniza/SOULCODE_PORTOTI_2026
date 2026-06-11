@@ -1,0 +1,23 @@
+[
+    {
+        "nome": "Teste",
+        "autor": "Teste",
+        "ano": 2026,
+        "preco": 30.0,
+        "quantidade": 100
+    },
+    {
+        "nome": "Teste",
+        "autor": "Teste",
+        "ano": 2020,
+        "preco": 40.0,
+        "quantidade": 100
+    },
+    {
+        "nome": "Crime e Castigo",
+        "autor": "Friedor Dostoievsky",
+        "ano": 1968,
+        "preco": 20.0,
+        "quantidade": 500
+    }
+]

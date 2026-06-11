@@ -1,0 +1,16 @@
+[
+    {
+        "nome": "O Alquimista",
+        "autor": "Paulo Coelho",
+        "ano": 1988,
+        "preco": 45.0,
+        "quantidade": 12
+    },
+    {
+        "nome": "Dom Casmurro",
+        "autor": "Machado de Assis",
+        "ano": 1899,
+        "preco": 35.0,
+        "quantidade": 18
+    }
+]

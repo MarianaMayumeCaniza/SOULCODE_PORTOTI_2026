@@ -1,0 +1,66 @@
+[
+  {
+    "id": 0,
+    "nome": "Nescafe",
+    "contato": "vendas@nescafe.com.br",
+    "telefone": "(11) 4002-1111",
+    "produtos_fornecidos": [
+      {
+        "nome": "Cafe",
+        "custo": 1.5
+      },
+      {
+        "nome": "Cappuccino",
+        "custo": 3.5
+      },
+      {
+        "nome": "Descafeinado",
+        "custo": 2
+      },
+      {
+        "nome": "Cafe com Leite",
+        "custo": 2.2
+      },
+      {
+        "nome": "Frapuccino",
+        "custo": 5
+      },
+      {
+        "nome": "Mocca",
+        "custo": 4.5
+      },
+      {
+        "nome": "Latte",
+        "custo": 4
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "nome": "Nescau",
+    "contato": "contato@nescau.com.br",
+    "telefone": "(11) 3333-4444",
+    "produtos_fornecidos": [
+      {
+        "nome": "Chocolate Quente",
+        "custo": 3
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "nome": "Leite Moca",
+    "contato": "contato@leitemoca.com.br",
+    "telefone": "(31) 2222-5555",
+    "produtos_fornecidos": [
+      {
+        "nome": "Leite",
+        "custo": 1.2
+      },
+      {
+        "nome": "Cha Matte",
+        "custo": 1.8
+      }
+    ]
+  }
+]

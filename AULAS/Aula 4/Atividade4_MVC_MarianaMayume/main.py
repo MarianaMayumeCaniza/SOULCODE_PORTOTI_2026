@@ -344,7 +344,7 @@ while True:
             if total_qtd > maior_qtd_vendida:
                 maior_qtd_vendida = total_qtd
                 produto_campeao = produto_nome
-        print("Livro mais vendido: {} ({} unidades)".format(produto_campeao, maior_qtd_vendida))
+        print("Bebida mais vendido: {} ({} unidades)".format(produto_campeao, maior_qtd_vendida))
 
 
     else:
