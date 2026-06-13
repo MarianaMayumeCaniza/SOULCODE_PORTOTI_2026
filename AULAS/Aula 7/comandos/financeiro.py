@@ -1,93 +1,132 @@
-from banco_dados  import salvar_arquivo
-
-def alterar_preco (estoque, salvar_arquivo):
-    id_produto = int(input("Digite o [ID] do livro para alterar o preço: "))
-    if id_produto < 0 or id_produto >= len(estoque):
-        print("ERRO: ID inválido.")
-    else:
-        novo_preco = float(input(f"Digite o novo preço para '{estoque[id_produto]['nome']}': "))
-        if novo_preco <= 0:
-            print("ERRO: O preço deve ser maior que zero.")
-        else:
-            estoque[id_produto]['preco'] = novo_preco
-            salvar_arquivo("estoque.json", estoque)
-            print(f"Preço de '{estoque[id_produto]['nome']}' atualizado para R$ {novo_preco:.2f} com sucesso!")
+import sqlite3
 
 
-def aplicar_promocao (estoque):
+def alterar_preco():
+    try: 
+        id_produto = int(input("Digite o [ID] do livro para alterar o preço: "))
+    except ValueError:
+        print("ERRO: O ID deve ser um numero")
+        return
+    
+    with sqlite3.connect("livraria.db") as conexao: 
+        cursor = conexao.cursor()
+        cursor.execute("SELECT nome, preco FROM livros WHERE id = ?", id_produto)
+        livro = cursor.fetchone
+
+        if not livro:
+            print("ERRO: ID INVALIDO, LIVRO NAO ENCONTRADO")
+            return
+        
+        try: 
+            novo_preco = float(input(f"Digite o novo preço para o livro '{livro[0]}' (preço atual: R$ {livro[1]}) "))
+        except ValueError:
+            print("ERRO: O preço deve ser numerico")
+            return
+    
+    with sqlite3.connect("livraria.db") as conexao: 
+        cursor = conexao.cursor()
+        cursor.execute("UPDATE livros SET preco = ? WHERE id = ? ", (novo_preco, id_produto))
+
+        conexao.commit()
+    
+    print("Preco autalizado com sucesso!!!! :)    ")
+        
+    
+
+
+def aplicar_promocao ():
     print("\n========== PROMOÇÕES ==========")
     print("  1 - Desconto em 1 produto específico")
     print("  2 - Desconto em todo o cardápio")
 
-    tipo_promocao = int(input("Digite o número do tipo de promoção desejada: "))
-
-    porcentagem_desconto = float(input("Digite a porcentagem de desconto (ex: 10 para 10%): "))
-
-    fator_desconto = 1 - (porcentagem_desconto / 100)
-
-    if tipo_promocao == 1:
-        id_produto = int(input("Digite o [ID] do livro para aplicar o desconto: "))
-        if id_produto < 0 or id_produto >= len(estoque):
-            print("ERRO: ID inválido.")
-        else:
-            estoque[id_produto]['preco'] = round(estoque[id_produto]['preco'] * fator_desconto, 2)
-            salvar_arquivo("estoque.json", estoque)
-            print(f"Desconto aplicado! Novo preço de '{estoque[id_produto]['nome']}': R$ {estoque[id_produto]['preco']:.2f}")
-
-    elif tipo_promocao == 2:
-        for livro in estoque:
-            livro['preco'] = round(livro['preco'] * fator_desconto, 2)
-        salvar_arquivo("estoque.json", estoque)
-        print(f"Desconto de {porcentagem_desconto:.2f}% aplicado a todos os livros! Confira os novos preços no menu principal.")
-    
-    else:
-        print("ERRO: Tipo de promoção inválido.")
-
-
-def nota_fiscal (historico_vendas):
-    print("\n========== NOTA FISCAL ==========")
-    if not historico_vendas:
-        print("Nenhuma venda registrada ainda.")
-    else:
-        for i, venda in enumerate(historico_vendas):
-            print(f"[{i}] Data/Hora: {venda['horarios']} - {venda['quantidade']} x {venda['item']} | Total venda:  R$ {venda['valor']:.2f} ")
-
-
-def exibir_painel_bi (historico_vendas):
-    print("\n========== PAINEL DE BUSSINES INTELIGENCE ==========")
-        
-    if len(historico_vendas) == 0:
-        print("Nenhuma venda registrada ainda.")
+    try:
+        tipo_promocao = int(input("Digite o número do tipo de promoção desejada: "))
+    except ValueError: 
+        print("ERRO: O tipo e promoção deve ser um número.")
         return
 
-    faturamento_total = sum(venda['valor'] for venda in historico_vendas)
-    print("Faturamento total: R$ {:.2f}".format(faturamento_total))
+    if tipo_promocao == 1:
+        try: 
+            porcentagem = float(input("Qual a porcentagem (%) do desconto: "))
+            id_produto = int(input("Digite o [ID] do livvro: "))
+        except ValueError:
+            print("ERRO: Porcentagem e ID devem ser numeros válidos")
+            return
+        
+        fator_desconto = (100 - porcentagem) / 100
 
-    ticket_medio = faturamento_total / len(historico_vendas)
-    print("Ticket médio: R$ {:.2f}".format(ticket_medio))
+        with sqlite3.connect("livraria.db") as conexao: 
+            cursor = conexao.cursor()
+            cursor.execute("UPDATE livros SET preco = ROUND (preco * ?, 2) WHERE id = ?", (fator_desconto, id_produto ))
+            conexao.commit()
+            print("Desconto aplicado com sucesso!!!!")
 
-    #livro_mais_vendido = max(set(venda['item'] for venda in historico_vendas), key=lambda item: sum(venda['quantidade'] for venda in historico_vendas if venda['item'] == item))
-    #print("Livro mais vendido: {}".format(livro_mais_vendido))
-    #O prfesor fez uma funçã para isso
 
-    historico_vendas_por_livro = {}
-    for venda in historico_vendas:
-        if venda['item'] in historico_vendas_por_livro:
-            historico_vendas_por_livro[venda['item']] += venda['quantidade']
-            # Se existe o item no historico eu somo a quantidade vendida
+
+    elif tipo_promocao == 2:
+        try:
+            porcentagem = float(input("Digite a pocentagem(%) que deseja aplicar no acervo: "))
+        except ValueError:
+            print("ERRO: procentagem(%) invalida")
+            return
+
+        fator_desconto = (100 - porcentagem) / 100
+
+        with sqlite3.connect("livraria.db") as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("UPDATE livros SET preco = ROUND(preco * ?, 2)", (fator_desconto,))
+            conexao.commit()
+            print("Desconto aplicado com sucesso!!!! :)")
+
+    else:
+        print("Comando invalido")
+    
+
+
+def nota_fiscal ():
+    print("\n========== NOTA FISCAL ==========")
+    with sqlite3.connect("livrria.db") as conexao:
+        cursor = conexao.cursor()
+        cursor.execute("SELECT  id, horario, item_nome, quantidade, valor_total FROM vendas")
+        historico = cursor.fetchall()
+
+        if len(historico) == 0:
+            print("Não foi realizado nenhuma venda ainda")
         else:
-            historico_vendas_por_livro[venda['item']] = venda['quantidade']
-            # Se não existe o item no historico eu crio a chave e já atribuo a quantidade vendida. Nao entendi muito bem a logica 
-            # a menos que o comando 9 for chamado varias vezes então ok.... vai armazenar
-            #o professor fez ao contrario... mas ok
-        #if venda['item'] not in historico_vendas_por_livro:
-            #historico_vendas_por_livro[venda['item']] = 0
-        #historico_vendas_por_livro[venda['item']] += venda['quantidade']
+            for venda in historico:
+                print(f"[{venda[0]}] Data/Hora: {venda[1]} | {venda[2]} x{venda[3]} | Total venda R$ {venda[4]:.2f}")
 
-    produto_campeao = ""
-    maior_qtd_vendida = 0
-    for produto_nome, total_qtd in historico_vendas_por_livro.items():
-        if total_qtd > maior_qtd_vendida:
-            maior_qtd_vendida = total_qtd
-            produto_campeao = produto_nome
-    print("Livro mais vendido: {} ({} unidades)".format(produto_campeao, maior_qtd_vendida))
+
+
+def exibir_painel_bi ():
+    print("\n========== PAINEL DE BUSSINES INTELIGENCE ==========")
+
+    with sqlite3.connect("livraria.db") as conexao: 
+        cursor = conexao.cursor()
+        cursor.execute("SELECT COUNT (*) FROM vendas")
+
+        if cursor.fetchone()[0] == 0:
+            print("Sem dados de vendas, nenhuma venda realizada ainda")
+            return
+        
+        cursor.execute("SELECT SUM(valor_total) FROM vendas")
+        faturamento = cursor.fetchone()[0]
+        print(f" Historico e faturamento Bruto: R$ {faturamento:.2f}")
+
+        cursor.execute("SELECT AVG(valor_total) FROM vendas")
+        ticket_medio = cursor.fetchone()[0]
+        print(f"Ticket Médio por vena: R$ {ticket_medio:.2f} ===============")
+
+        cursor.execute("""
+            SELECT item_nome, SUM(quantidade)
+            FROM venda
+            GROUP BY item_nome
+            ORER BY SUM (quantidade) DESC
+            LIMIT 1
+        """)
+
+        produto_campeao, maior_qtd = cursor.fetchone()
+        print(f" -> LIVRO MAIS VENDIDO: {produto_campeao} ({maior_qtd}) exemplares venda")
+
+        
+            

@@ -1,3 +1,4 @@
+import sqlite3 
 
 def pesquisa_livro (estoque):
     print("\n========== PESQUISAR POR NOME/AUTOR ==========")
@@ -6,11 +7,11 @@ def pesquisa_livro (estoque):
     resultado = False
 
     for livro in estoque:
-        if termo_pesquisa in livro['nome'].lower() or termo_pesquisa in livro['autor'].lower() or termo_pesquisa in str(livro['ano']):
-            print(f" - {livro['nome']} ({livro['ano']}) | Autor: {livro['autor']} - R$ {livro['preco']:.2f} | Estoque: {livro['quantidade']}")
-            resultado = True
+        if termo_pesquisa in (livro[1]).lower() or termo_pesquisa in livro[2].lower() or termo_pesquisa in str(livro[3]):
+            print(f"[{livro[0]}] {livro[1]} ({livro[3]}) | Autor: {livro[2]} | R$ {livro[4]:.2f} | Estoque: {livro[5]}")
+            encontrou = True
     if not resultado:
-        print("Nenhum livro encontrado com esse termo de pesquisa.")
+        print("Nenhum resultado encontrado pra sua pesquisa :(")
 
 
 def catalogo_ordenado (estoque):
@@ -32,21 +33,29 @@ def catalogo_ordenado (estoque):
         return
 
     for livro in estoque_ordenado:
-        print(f"- {livro['nome']} | R$ {livro['preco']:.2f}")
+        print(f"- {livro[1]:<20} | R$ {livro[4]:.2f} | Qtd: {livro[5]}")
     
 
-def relatorio_expresso(estoque):
+def relatorio_expresso():
     print("\n RELATORIOS EXPRESSOS")
     print("Livros em alerta de estoque (menos que 5)")
 
-    estoque_baixo = [livro['nome'] for livro in estoque if livro['quantidade'] < 5]
+    with sqlite3.connect("livraria.db") as conexao:
+        cursor = conexao.cursor()
+        cursor.execute("SELECT nome FROM livros WHERE quantidade < 5")  
+        estoque_baixo = [linha[0] for linha in cursor.fetchall()]
+        
 
-    if len(estoque_baixo) == 0:
-        print("Nenhum livro com estoque baixo")
-    else:
-        print(", ".join(estoque_baixo))
-    
-    print("\n Livros populares abaixo de R$ 40,00:")
-    livros_baratos = [livro['nome'] for livro in estoque if livro['preco']<=40]
+        if len(estoque_baixo) == 0:
+            print("Nenhum livro com estoque baixo")
+        else:
+            print(", ".join(estoque_baixo))
+        
+        print("Livros populares abaixo de R$ 40,00: ")
+        cursor.execute("SELECT nome FROM livros WHERE preco <= 40.0")
+        estoque_baratos = [linha[0] for linha in cursor.fetchall()]
 
-    print(", " .join(livros_baratos))
+        if len(estoque_baratos) == 0:
+            print("Nenhum livro barato")
+        else:
+            print(", ".join(estoque_baratos))

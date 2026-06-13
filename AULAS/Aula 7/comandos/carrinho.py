@@ -1,79 +1,97 @@
-import datetime   
-from banco_dados import salvar_arquivo
+import datetime
+import sqlite3
 
-def realizar_venda (estoque, historico_vendas, salvar_arquivo):
-
-    print("\n =============== CARRINHO DE COMPRAS ====================")
-            
+def realizar_venda():
+    print("\n ============== CARRINHO DE COMPRAS =============")
     carrinho = []
 
-    while True:
-        try:
-            id_venda = int(input("Digite o [ID] do Produto: "))
+    while True: 
+        try: 
+            id_venda = int(input ("digite o [ID] do produto: (-1 para concluir compra )"))
         except ValueError:
-            print("ERRO [ID] Inválido")
+            print("ERRO: ID DEVE SER UM NUMERO INTEIRO")
             continue
-
+        
         if id_venda == -1:
             break
-        
         elif id_venda == -2:
-            print("Compra cancelada")
-            carrinho = []
-            break
-
-        if id_venda < 0 or id_venda >= len(estoque):
-            print("ERRO: ID Invalido")
+            print("COMPRA CANCELADA")
+            carinho = []
+            return
         
-        try:
-            qtd = int(input(f"Quantos exemplares do {estoque[id_venda]['nome']} você deseja comprar?"))
-        except ValueError:
-            print("Erro: digite um numero:")
+    
+        with sqlite3.connect("livraria.db") as conexao:
+            cursor = conexao.cursor()
+        
+        cursor.execute("SELECT nome, preco, quantidade FROM livro WHERE id = ?", (id_venda,))
+
+        livro_encontrado = cursor.fetchone()
+
+        if not livro_encontrado: 
+            print("ERRO: ID INVALIDO. Esse livro não existe no sistema")
             continue
         
+        nome_livro, preco_livro, estoque_real = livro_encontrado
+
+        try: 
+            qtd = int(input(f"Quantos exemplares do '{nome_livro}' você deseja adicionar? disponível no estoque {estoque_real}"))
+        except ValueError:
+            print("ERRO: quantidade invalida")
+            continue
+
         qtd_ja_no_carrinho = sum(item['qtd'] for item in carrinho if item['id'] == id_venda)
-        estoque_disponivel = estoque[id_venda]['quantidade'] - qtd_ja_no_carrinho
+        estoque_disponiel = estoque_real - qtd_ja_no_carrinho
 
-        if qtd <= 0: 
-            print("ERRO: Quantidade inválida")
-        elif qtd > estoque_disponivel :
-            print(f"ESTOQUE INSUFICIENTE. Você tem já tem {qtd_ja_no_carrinho} no carrinho e seu estoque real é {estoque[id_venda]['quantidade']} ")
+        if qtd<=0: 
+            print("ERRO: QUANTIDADE INVALIDA")
+        elif qtd > estoque_disponiel:
+            print(f" ESTOQUE INSUFICIENTE. Você já tem {qtd_ja_no_carrinho} no carrinho")
         else: 
-            # adiciona item no carrinho
-            carrinho.append({
-                "id" : id_venda,
-                "nome": estoque[id_venda]['nome'],
-                "preco": estoque[id_venda]['preco'],
-                "qtd": qtd,
-                "subtotal": qtd * estoque[id_venda]['preco']
+            carrinho.append(
+                {
+                    "id": id_venda,
+                    "nome": nome_livro,
+                    "preco": preco_livro,
+                    "qtd": qtd,
+                    "subtotal" : qtd * preco_livro
+                }
+            ) 
+            print(f" -> {qtd} x '{nome_livro}' adicionado ao carrinho. ")
 
-            })
-
-            print(f" -> {qtd} x '{estoque[id_venda]['nome']}' adicionado ao carrindo.")
-    
-    if len(carrinho) > 0: 
+    if len(carrinho) > 0:
         total_compra = sum(item['subtotal'] for item in carrinho)
-        print("\n ========= FECHAMENTO CAIXA ============")
-        print(f" Total a pagar é {total_compra: .2f}")
-        confirmar = input("Confimrar pagamento e registrar a venda? (s/n)").strip()
-    
+        print(f"\n ========== FECHAMENTO DE CAIXA =============")
+        print(f" Total a pagar: R$ {total_compra:.2f}")
+        confirmar = input("Confirmar pagamento e registrar a venda? (s/n): ").strip()
+
         if confirmar == "s":
-            for item in carrinho: 
-                estoque[item['id']]['quantidade'] -= item['qtd']
+            with sqlite3.connect("livraria.db") as conexao: 
+                cursor = conexao.cursor()
 
-                historico_vendas.append(
-                    {
-                        "horários": datetime.datetime.now().strftime("%d/%m/%y %H/%M/%S"),
-                        "item": item['nome'],
-                        "qtd" : item['qtd'],
-                        "valor": item['subtotal']
-                    }
-                )
-            caixa+= total_compra
-            salvar_arquivo("estoque.json", estoque)
-            salvar_arquivo("vendas.json", historico_vendas)
+                for item in carrinho: 
+                    cursor.execute("""
+                        UPDATE livros
+                        SET quantidade = quantidade - ?
+                        WHERE id = ? 
+                        """, (item['qtd'], item['id']))
+                
+                    cursor.execute("""
+                        INSERT INTO vendas (horario, item_nome, quantidade, valor_total)
+                        VALUE (?, ?, ?, ?)""", (
+                            datetime.datetime.now().strftime("%d/%m/%y H:%M:S"),
+                            item['nome'],
+                            item['qtd'],
+                            item['subtotal']
+                        ))
 
-            print("VENDA EFETIVADA !!!! :)")
+                conexao.commit()
+            # conexao leva tudo que foi executado para o banco
+            print("VENDA CONCLUIDA COM SUCESSO!!!!    :)   ")
+        else:
+            print("VENDA N FINALIZADA") 
 
-        else: 
-            print("Venda nao finalizada. Carrinho descartado")
+
+
+
+        
+        

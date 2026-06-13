@@ -12,8 +12,8 @@ def exibir_menu_e_estoque (caixa_atual, estoque_atual):
 ============================================================""")
     
     print("ACERVO DISPONÍVEL: ")
-    for id_livro, livro in enumerate(estoque_atual):
-        print(f" [{id_livro}] - {livro['nome']} ({livro['ano']}) | Autor: {livro['autor']} - R$ {livro['preco']:.2f} | Estoque: {livro['quantidade']}")
+    for livro in estoque_atual:
+        print(f"[{livro[0]}] {livro[1]} ({livro[3]}) | Autor: {livro[2]} | R$ {livro[4]:.2f} | Estoque: {livro[5]}")
     
     print("============MENU DE COMANDOS======================")
     print("--------------------------------------------------")
@@ -26,5 +26,7 @@ def exibir_menu_e_estoque (caixa_atual, estoque_atual):
     print("'7' = PROMOÇÕES")
     print("'8' = Nota Fiscal (Vendas da Sessão)")
     print("'9' = PAINEL DE ESTATÍSTICAS E BALANÇO")
+    print("'10' = Ordenar catalogo")
+    print("'11' = Relatorio Expressos ")
     print("==================================================\n")
 
